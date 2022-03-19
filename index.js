@@ -30,7 +30,6 @@ client.connect(err => {
     app.get("/plantDetail/:id", async (req, res) => {
         const id = req.params.id;
         const plant = await plantsCollection.findOne({ _id: ObjectId(id) });
-        console.log(plant);
         res.json(plant);
     })
 
@@ -45,6 +44,65 @@ client.connect(err => {
         const order = await ordersCollection.insertOne(req.body)
         res.send(order)
     });
+
+    // get order by email
+    app.get("/myOrders/:email", async (req, res) => {
+        const email = req.params.email;
+        const order = await ordersCollection.find({ email: email }).toArray();
+        res.json(order);
+    })
+
+    // remove a plant from my order
+    app.delete("/removeOrder/:id", async (req, res) => {
+        const id = req.params.id;
+        const plant = await ordersCollection.deleteOne({ _id: ObjectId(id) });
+        console.log(plant);
+        res.json(plant);
+    })
+    // load all orders
+    app.get("/allOrders", async (req, res) => {
+        const orders = await ordersCollection.find({}).toArray();
+        res.json(orders);
+    })
+
+    // load a single order with id to update
+
+    app.get("/allOrders/:id", async (req, res) => {
+        const id = req.params.id;
+        const order = await ordersCollection.findOne({ _id: ObjectId(id) });
+        res.json(order);
+    })
+
+    //  update status
+    app.put("/allOrders/:id", async (req, res) => {
+        const id = req.params.id;
+        const updateStatus = req.body;
+        const filter = { _id: ObjectId(id) };
+        const updateDoc = {
+            $set: {
+                status: updateStatus.status,
+            },
+        };
+        const result = await ordersCollection.updateOne(
+            filter,
+            updateDoc,
+        );
+        res.json(result);
+    });
+
+    // add a plant
+    app.post("/addItem", async (req, res) => {
+        const item = await plantsCollection.insertOne(req.body)
+        res.send(item)
+    });
+
+    // remove a plant from manage order
+    app.delete("/removeItem/:id", async (req, res) => {
+        const id = req.params.id;
+        const plant = await plantsCollection.deleteOne({ _id: ObjectId(id) });
+        console.log(plant);
+        res.json(plant);
+    })
 
     //   client.close();
 });
